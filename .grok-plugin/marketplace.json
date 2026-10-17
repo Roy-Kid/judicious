@@ -1,0 +1,17 @@
+{
+  "name": "judicious",
+  "description": "Engineering judgment skills for AI coding agents.",
+  "owner": {
+    "name": "Roy Kid",
+    "email": "lijichen365@gmail.com",
+    "url": "https://github.com/Roy-Kid"
+  },
+  "plugins": [
+    {
+      "name": "judicious",
+      "description": "Engineering judgment for AI coding agents: reuse before creating, place code correctly, critique and audit structure, and distill, consolidate, harden or polish with the project's own tests.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

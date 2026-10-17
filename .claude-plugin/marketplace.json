@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "judicious",
+  "owner": {
+    "name": "Roy Kid",
+    "email": "lijichen365@gmail.com",
+    "url": "https://github.com/Roy-Kid"
+  },
+  "metadata": {
+    "description": "Engineering judgment skills for AI coding agents."
+  },
+  "plugins": [
+    {
+      "name": "judicious",
+      "source": "./",
+      "description": "Engineering judgment for AI coding agents: reuse before creating, place code correctly, critique and audit structure, and distill, consolidate, harden or polish with the project's own tests.",
+      "category": "development"
+    }
+  ]
+}

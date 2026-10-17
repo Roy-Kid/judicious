@@ -1,0 +1,28 @@
+{
+  "description": "Judicious reuse-first rules, injected at session and subagent start. Opt out: JUDICIOUS_INJECT=0.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"${JUDICIOUS_INJECT:-1}\" = \"0\" ] || cat \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.json\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"${JUDICIOUS_INJECT:-1}\" = \"0\" ] || cat \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-start.json\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

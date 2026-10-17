@@ -1,0 +1,22 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Judicious",
+      "description": "Engineering judgment for long-lived code: reuse, placement, critique, and the fixes that follow.",
+      "skills": [
+        "judicious",
+        "reuse",
+        "placement",
+        "critique",
+        "audit",
+        "init",
+        "distill",
+        "consolidate",
+        "harden",
+        "polish"
+      ]
+    }
+  ]
+}
