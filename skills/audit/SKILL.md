@@ -12,6 +12,9 @@ license: MIT
 
 **Mode:** read-only. Never edit, create or delete files.
 
+## Loading skills
+When this workflow uses another skill, load its current instructions and follow them with the supplied target and arguments. Use the environment's skill-loading mechanism when available; otherwise read the matching installed `SKILL.md` using file or resource access. In a source checkout, skills live at `skills/<name>/SKILL.md`. Resolve names within the Judicious package to avoid unrelated skills with the same name. No particular tool name or invocation syntax is required. If the required instructions cannot be accessed, report the missing skill and stop that dependent step; do not reconstruct it from memory.
+
 ## Input
 - **Target:** a path, a package or crate, or the whole project.
 - **`--changed`:** the git diff, plus the code it calls and the code that calls it.
@@ -21,14 +24,13 @@ license: MIT
 You coordinate. The area review is `critique`. This playbook maps, merges and classifies.
 
 ## 1. Map
-- Read the project's own rules first: README, architecture or ADR docs, CLAUDE.md or AGENTS.md, and the manifests.
+- Read the project's own rules first: README, architecture or ADR docs, project instruction files, and the manifests.
 - List the units, their public surfaces and their dependency edges.
 - Mark the highest-risk areas: boundaries, duplicated domains, public APIs, and generated, FFI or serialization code.
 
 ## 2. Review
 - Review at most 4 areas in this pass. Name every skipped area under Coverage, and offer to continue.
-- For each area, call the Skill tool with `critique`, passing that path as `args`. Use the report it returns.
-- If the Skill tool is unavailable, stop and say the audit cannot run.
+- For each area, load and follow `critique` with that path as its target. Use the resulting report.
 
 ## 3. Merge and classify
 - Merge findings that share a root cause across areas. Keep each distinct consequence as its own bullet.
@@ -102,7 +104,7 @@ Any one of these rules out reuse, merging or extraction. Record which ones you c
 - **Boundary cost exceeds benefit:** crossing a process, language, ABI or deployment boundary costs more than the duplication it saves.
 - **Unproven sharing:** only one real consumer exists today.
 - **Policy leakage:** the candidate carries domain policy that the new context must not inherit.
-- **Project constraint:** a README, architecture doc, CLAUDE.md, AGENTS.md or manifest rule forbids it.
+- **Project constraint:** a README, architecture doc, project instruction file or manifest rule forbids it.
 
 When one of these holds, the usual answer is `CREATE`, `EXTEND` behind a separate entry point, or keeping the implementations apart.
 

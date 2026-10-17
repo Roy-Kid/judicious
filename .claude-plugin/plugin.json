@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "judicious",
   "displayName": "Judicious",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Engineering judgment for AI coding agents: reuse before creating, place code correctly, critique and audit structure, and distill, consolidate, harden or polish with the project's own tests.",
   "author": { "name": "Roy Kid", "email": "lijichen365@gmail.com" },
   "license": "MIT",

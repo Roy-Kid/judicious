@@ -12,17 +12,20 @@ license: MIT
 
 **Mode:** orchestrating. The first pass only reads. Any write waits for approval (**Appendix: Verification**).
 
+## Loading skills
+When this workflow uses another skill, load its current instructions and follow them with the supplied target and arguments. Use the environment's skill-loading mechanism when available; otherwise read the matching installed `SKILL.md` using file or resource access. In a source checkout, skills live at `skills/<name>/SKILL.md`. Resolve names within the Judicious package to avoid unrelated skills with the same name. No particular tool name or invocation syntax is required. If the required instructions cannot be accessed, report the missing skill and stop that dependent step; do not reconstruct it from memory.
+
 ## Procedure
-1. **Discover conventions** already written down: README, CLAUDE.md, AGENTS.md, architecture or ADR docs, and the manifests. Use those rules. Do not add a plan format, a spec format, or a Judicious process file in order to initialize.
-2. **Audit** by calling the Skill tool with `audit` and the same target. That report is the only findings list. If the Skill tool is unavailable, stop.
+1. **Discover conventions** already written down: README, project instruction files, architecture or ADR docs, and the manifests. Use those rules. Do not add a plan format, a spec format, or a Judicious process file in order to initialize.
+2. **Audit** by loading and following `audit` with the same target. That report is the only findings list.
 3. **Triage** the debt into one small batch, ordered by impact. Each item is independently verifiable and names its Locations (see **Appendix: Report**).
 4. **Ask** before any edit. Show the batch and its Locations, then stop until the user approves.
 5. **Remediate** only the approved items.
-   - `consolidate`, `distill` or `harden`: call the Skill tool with that skill and the finding. That command edits and verifies.
-   - `placement`: call `placement`. It returns a plan. Implement that plan with the host's own planning only after the user approves the plan itself.
+   - `consolidate`, `distill` or `harden`: load and follow that skill with the finding. That command edits and verifies.
+   - `placement`: load and follow `placement` with the finding. It returns a plan. Implement that plan with the host's own planning only after the user approves the plan itself.
    - **bug fix:** use the host's own planning and editing.
-6. **Re-audit** the paths that batch changed by calling `audit` on them.
-7. **Record a durable constraint** only after the user agrees. Write it into an existing CLAUDE.md, AGENTS.md or architecture doc. When none of those exist and the user wants a baseline, write a short summary at the path they name. Write a constraint only when the code and the docs already support it.
+6. **Re-audit** the paths that batch changed by loading and following `audit` on them.
+7. **Record a durable constraint** only after the user agrees. Write it into an existing project instruction file or architecture doc. When none of those exist and the user wants a baseline, write a short summary at the path they name. Write a constraint only when the code and the docs already support it.
 
 When the audit reports no debt, stop and say what was checked.
 

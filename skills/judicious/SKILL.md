@@ -10,6 +10,9 @@ license: MIT
 
 Judicious helps you write only code that has a reason to exist, sits in the right place, and stays maintainable. It supplies judgment only. Search, planning, editing, tests and permissions stay with the host.
 
+## Loading skills
+When this workflow uses another skill, load its current instructions and follow them with the supplied target and arguments. Use the environment's skill-loading mechanism when available; otherwise read the matching installed `SKILL.md` using file or resource access. In a source checkout, skills live at `skills/<name>/SKILL.md`. Resolve names within the Judicious package to avoid unrelated skills with the same name. No particular tool name or invocation syntax is required. If the required instructions cannot be accessed, report the missing skill and stop that dependent step; do not reconstruct it from memory.
+
 ## Principles
 - Reuse before creating.
 - Settle placement before abstraction.
@@ -36,7 +39,7 @@ Judicious helps you write only code that has a reason to exist, sits in the righ
 ## Routing
 - **No argument:** show the table with one example each, such as `/judicious reuse "parse configuration"`, `/judicious audit` or `/judicious polish`. Run nothing.
 - **Typical flow:** `critique` or `audit` finds and locates problems, then each finding's `Fix with` command fixes them, then `critique --changed` re-checks. `init` runs `audit` and then that loop on one approved batch. `polish` checks the current diff before a merge. Every command ends with a Next recommendation.
-- **Explicit command:** call the Skill tool with that command's skill, passing the remaining arguments unchanged as `args`. Then follow what the skill loads. Never run a command from memory or look for its files on disk.
+- **Explicit command:** load that command's skill as described above, preserving the remaining arguments unchanged, then follow its instructions.
 - **Natural-language request:** pick the command whose question matches, say which one in one line, then call its skill the same way.
   - Code about to be added → `reuse`.
   - Existing code being judged → `critique`.
@@ -49,7 +52,7 @@ Judicious helps you write only code that has a reason to exist, sits in the righ
   - Whether the current change is ready to merge → `polish`.
   - If several fit, ask once.
 - **Unknown command:** say it is not available and suggest the closest available command.
-- **No Skill tool:** say the command cannot be loaded here. Do not substitute a generic answer.
+- **Skill instructions inaccessible:** name the skill that could not be loaded and the access limitation. Do not substitute a generic answer.
 
 ## Arguments (shared by every command)
 - **Target:** a file, directory, package or crate, or a description in words.

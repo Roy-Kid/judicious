@@ -1,6 +1,6 @@
-# Judicious — agent router
+# Judicious — repository guide
 
-Markdown-only skills. Spec: `docs/spec-v0.3.md` (Chinese, authoritative for intent). Agent-facing files are in English.
+Markdown-only skills. Spec: `docs/spec-v0.3.md` (Chinese, authoritative for intent). Agent-facing files are in English. Workflows are independent of the agent; this filename is an installation adapter.
 
 ## Where things live
 
@@ -18,12 +18,12 @@ Markdown-only skills. Spec: `docs/spec-v0.3.md` (Chinese, authoritative for inte
 ## Invariants
 
 1. Edit `skills/<name>/SKILL.md` directly. There is no build step.
-2. Each skill stays self-contained: no links to other files in the repo, and no `${CLAUDE_SKILL_DIR}` or `${CLAUDE_PLUGIN_ROOT}` reads. The store installs one skill directory at a time.
-3. The router delegates by the skill `name` (`critique`, `reuse`, …). It holds no command rules.
+2. Each skill stays self-contained: no links to other files in the repo, and no vendor-specific environment-variable reads. The store installs one skill directory at a time.
+3. The router selects by the skill `name` (`critique`, `reuse`, …) and loads its instructions through the available skill loader or file/resource access. It holds no command rules. No named tool is required.
 4. Adding a command means one new `skills/<name>/SKILL.md` whose frontmatter `name` matches the directory, plus a row in the router and in `skills.sh.json`.
 5. Read-only is enforced in the playbook text, not with `disallowed-tools`.
 6. Two activation styles:
-   - **Before implementation:** the `reuse` skill, plus the Claude plugin's SessionStart hook.
+   - **Before implementation:** the `reuse` skill, plus the reuse-first card through project instructions or optional lifecycle hooks.
    - **Manual checks:** the user invokes the skill by name.
 7. Do not add a runtime, more hooks or MCP servers without measured evidence (spec §9, Stage 7).
 

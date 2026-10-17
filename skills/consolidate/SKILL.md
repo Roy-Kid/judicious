@@ -54,7 +54,7 @@ Any one of these rules out reuse, merging or extraction. Record which ones you c
 - **Boundary cost exceeds benefit:** crossing a process, language, ABI or deployment boundary costs more than the duplication it saves.
 - **Unproven sharing:** only one real consumer exists today.
 - **Policy leakage:** the candidate carries domain policy that the new context must not inherit.
-- **Project constraint:** a README, architecture doc, CLAUDE.md, AGENTS.md or manifest rule forbids it.
+- **Project constraint:** a README, architecture doc, project instruction file or manifest rule forbids it.
 
 When one of these holds, the usual answer is `CREATE`, `EXTEND` behind a separate entry point, or keeping the implementations apart.
 

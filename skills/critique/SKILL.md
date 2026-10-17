@@ -18,25 +18,25 @@ license: MIT
 - **`--focus <topic>`:** look at that topic first. It sets priority; it does not filter out other findings.
 - **No target:** the current change. If there is none, ask what to review.
 
-You coordinate. Subagents do the reviewing, every time, whatever the scope.
+Map, review and verify the scope using the available capabilities. Independent reviewers can help with broad scopes, but delegation is optional.
 
 ## 1. Map (you)
-- Read the project's own rules first: README, architecture or ADR docs, CLAUDE.md or AGENTS.md, and the manifests (they define dependency edges).
+- Read the project's own rules first: README, architecture or ADR docs, project instruction files, and the manifests (they define dependency edges).
 - List the units, their public surfaces and their dependencies.
 - Trace the main data and control paths far enough to know who owns each piece of state and each invariant.
 
-## 2. Fan out (always)
+## 2. Organize the review
 - Split the scope into units of about 15 files or fewer each (a package, module or crate). A small scope is one unit.
-- Spawn one subagent per unit, all in parallel. Also spawn one cross-cutting subagent for duplication across units and against dependencies, including missed lowering.
-- Each subagent prompt includes:
+- Review each unit and check duplication across units and against dependencies, including missed lowering. When delegation is available and appropriate, assign independent reviewers to units and a cross-cutting review. Respect the environment's concurrency limits.
+- Each delegated review includes:
   - its paths, plus the paths of the dependency sources it may need;
   - the project rules you found;
   - the lens table and the rules from step 4;
   - the finding fields from Output, with exact `path:line` Locations;
   - the instruction "read-only; return findings, not fixes".
-- If no subagent tool is available, review inline and begin the report with `DEGRADED: single-context (no subagent tool)`.
+- Without delegation, perform the same review directly. State actual coverage limits under Coverage; the absence of a delegation tool is not itself a finding or a reason to stop.
 
-## 3. Collect candidates (subagents; generously, don't filter yet)
+## 3. Collect candidates (generously, don't filter yet)
 | Lens | Look for |
 |---|---|
 | Duplication | Two implementations, or parallel APIs, for one job. This includes re-implementing what a declared dependency already provides. |
@@ -106,7 +106,7 @@ Findings: <n> (high <h>)
 - End with the `Findings:` line. Don't apply fixes yourself.
 
 ## Limits
-- If the scope is too large even with subagents, start with the highest-risk area, state the limit, and offer to continue.
+- If the scope exceeds the available review capacity, start with the highest-risk area, state the limit, and offer to continue.
 - If a finding depends on intent you can't see, lower its confidence and name what would confirm it.
 
 ## Appendix: Anti-patterns
@@ -138,7 +138,7 @@ Any one of these rules out reuse, merging or extraction. Record which ones you c
 - **Boundary cost exceeds benefit:** crossing a process, language, ABI or deployment boundary costs more than the duplication it saves.
 - **Unproven sharing:** only one real consumer exists today.
 - **Policy leakage:** the candidate carries domain policy that the new context must not inherit.
-- **Project constraint:** a README, architecture doc, CLAUDE.md, AGENTS.md or manifest rule forbids it.
+- **Project constraint:** a README, architecture doc, project instruction file or manifest rule forbids it.
 
 When one of these holds, the usual answer is `CREATE`, `EXTEND` behind a separate entry point, or keeping the implementations apart.
 

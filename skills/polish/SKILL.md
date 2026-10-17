@@ -12,6 +12,9 @@ license: MIT
 
 **Mode:** modifying. It edits code under **Appendix: Verification**.
 
+## Loading skills
+When this workflow uses another skill, load its current instructions and follow them with the supplied target and arguments. Use the environment's skill-loading mechanism when available; otherwise read the matching installed `SKILL.md` using file or resource access. In a source checkout, skills live at `skills/<name>/SKILL.md`. Resolve names within the Judicious package to avoid unrelated skills with the same name. No particular tool name or invocation syntax is required. If the required instructions cannot be accessed, report the missing skill and stop that dependent step; do not reconstruct it from memory.
+
 ## Input
 - **No target:** the git diff, including unstaged changes, plus the code it calls and the code that calls it.
 - **A path:** limit the check to the diff inside that path.
@@ -20,7 +23,7 @@ license: MIT
 ## Check the diff
 For each new or changed unit, answer these. Cite `path:line` (see **Appendix: Report**).
 
-1. **Reuse.** Does an existing capability already do this? When a new helper resembles one, call the Skill tool with `reuse` and the need, then apply its decision.
+1. **Reuse.** Does an existing capability already do this? When a new helper resembles one, load and follow `reuse` with the need, then apply its decision.
 2. **Duplication.** Did this change add a parallel implementation or API?
 3. **Placement.** Does the new code sit in the unit that owns that responsibility?
 4. **Public API.** Did this change add or change an exported symbol?
@@ -63,7 +66,7 @@ Any one of these rules out reuse, merging or extraction. Record which ones you c
 - **Boundary cost exceeds benefit:** crossing a process, language, ABI or deployment boundary costs more than the duplication it saves.
 - **Unproven sharing:** only one real consumer exists today.
 - **Policy leakage:** the candidate carries domain policy that the new context must not inherit.
-- **Project constraint:** a README, architecture doc, CLAUDE.md, AGENTS.md or manifest rule forbids it.
+- **Project constraint:** a README, architecture doc, project instruction file or manifest rule forbids it.
 
 When one of these holds, the usual answer is `CREATE`, `EXTEND` behind a separate entry point, or keeping the implementations apart.
 

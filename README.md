@@ -2,14 +2,14 @@
 
 Engineering judgment for AI coding agents. Judicious helps an agent write only code that has a reason to exist, sits in the right place, and can be maintained.
 
-It is Markdown skills only: no runtime, no AST, no MCP server. Search, planning, editing and tests are left to the host agent. The full design is in [docs/spec-v0.3.md](docs/spec-v0.3.md).
+The workflows are agent-independent Markdown skills: no runtime, no AST, no MCP server. Search, planning, editing and tests are left to the host agent. The full design is in [docs/spec-v0.3.md](docs/spec-v0.3.md).
 
 ## Commands
 
 | Command | Mode | Question |
 |---|---|---|
 | `/judicious reuse [need]` | read-only | Does a capability that meets this need already exist? |
-| `/judicious critique [path]` | read-only | What is structurally wrong with this design? Always fans out to subagents. |
+| `/judicious critique [path]` | read-only | What is structurally wrong with this design? Reviews units and cross-cutting concerns. |
 | `/judicious audit [path]` | read-only | What architecture problems and technical debt does this codebase have? |
 | `/judicious placement [path or finding]` | read-only | Where should this code live: keep, move, extract, lower (e.g. into a core library) or remove? |
 | `/judicious init [path]` | orchestrating | Discover existing conventions, audit, and remediate one approved batch. |
@@ -18,7 +18,9 @@ It is Markdown skills only: no runtime, no AST, no MCP server. Search, planning,
 | `/judicious harden [finding]` | edits code | Make silent failures loud: contracts, errors, invariants, lossy round trips. |
 | `/judicious polish` | edits code | Is the current change ready to merge? Applies only small, local fixes. |
 
-`/judicious` with no argument lists them. Each command is also a skill whose `name` matches the command (`reuse`, `critique`, …).
+`/judicious` with no argument lists them. Each command is also a skill whose `name` matches the command (`reuse`, `critique`, …). Slash commands are examples; use your environment's invocation syntax or ask for a skill by name.
+
+**Skill loading.** Use the environment's skill loader, or read the installed skill's `SKILL.md` through file or resource access, then follow its instructions. In this checkout, the definitions are under `skills/<name>/SKILL.md`. Skill composition requires access to the referenced definitions, not a particular tool. Review works with or without delegation.
 
 **Flow:**
 1. `critique` or `audit` locates every problem at `path:line` and tags it with `Fix with: consolidate | distill | harden | placement | bug fix`.
@@ -51,7 +53,7 @@ npx skills add Roy-Kid/judicious --skill reuse
 grok plugin install Roy-Kid/judicious --trust
 ```
 
-`npx skills add` installs the skill files only. The reuse-first hook ships with the Claude plugin. On hosts that cannot inject it, copy [AGENTS.md](AGENTS.md).
+`npx skills add` installs the skill files only. The reuse-first hook ships with the Claude plugin. For other environments, merge the card in [AGENTS.md](AGENTS.md) into the recognized project instruction file.
 
 ## Layout
 

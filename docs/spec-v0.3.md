@@ -47,7 +47,7 @@ Judicious 必须能够：
 
 **Native First**
 
-优先使用宿主 Agent 已有的 Skills、Plan Mode、Subagents、代码导航、编辑和测试能力。
+优先使用当前环境已有的技能加载、规划、代码导航、编辑和测试能力；可用且适合时使用独立审查。流程不依赖特定 Agent、工具名称、规划模式或子代理接口。
 
 **Composable by Design**
 
@@ -129,7 +129,7 @@ Judicious 同时提供统一入口和原子入口。
 
 经 `npx skills add` 安装时，技能名就是命令名（`reuse`、`critique`），没有 `judicious:` 前缀。仓库按 `skills/<name>/SKILL.md` 发布，目录名等于 frontmatter 的 `name`。
 
-**重要：** 这里定义的是目标公共 API。Claude Code Plugin 的原生命名空间可以承载原子命令；不带命名空间的 `/judicious` 入口需要通过宿主原生 Skill 安装或薄适配实现。必须实测对应宿主的命令解析行为，不能假设 Plugin 安装后会自动拥有两个入口。
+**重要：** 这里定义的是目标公共 API。命令示例表达技能和参数，不限定宿主的调用语法。插件命名空间、斜杠命令或自然语言入口都是可选适配方式，均应加载同一份技能说明。必须实测对应宿主的命令解析行为，不能假设 Plugin 安装后会自动拥有两个入口。
 
 ## 2.2 命令分类
 
@@ -153,7 +153,7 @@ Judicious 同时提供统一入口和原子入口。
 
 不建设专门的参数解析系统。
 
-初期由 Claude 解释自然语言目标和简单命令参数。
+由执行任务的 Agent 解释自然语言目标和简单命令参数。
 
 例如：
 
@@ -366,7 +366,7 @@ INIT
   ├── Propose remediation priorities
   │
   ├── User-approved remediation
-  │     └── Native Claude planning/editing
+  │     └── Available planning/editing
   │
   └── Re-audit and establish baseline
 ```
@@ -379,7 +379,7 @@ Init 必须调用与独立 Audit 命令相同的审计能力定义，不允许�
 
 Init 应当主动给出高优先级的债务治理建议。
 
-用户确认后，可以使用宿主原生 Plan Mode、编辑和测试能力分批解决。
+用户确认后，可以使用当前环境的规划、编辑和测试能力分批解决。
 
 每批修改完成后重新审计受影响范围。
 
@@ -387,7 +387,7 @@ Init 不默认自动重构整个仓库。
 
 不强制创建新的 Plan、Spec 或任务格式。
 
-可以在用户确认后，将长期有效的架构约束写入项目现有的 `CLAUDE.md`、`AGENTS.md` 或既有架构文档。
+可以在用户确认后，将长期有效的架构约束写入项目现有的指令文件或架构文档。
 
 当需要跨会话保留技术债基线、且项目没有合适的现有载体时，可以选择性保存轻量审计摘要。
 
@@ -519,7 +519,9 @@ judicious/
 
 每项能力的权威定义就是 `skills/<name>/SKILL.md`。目录名等于 frontmatter 的 `name`。共享原则写在该文件里，因为商店按单个 skill 目录安装，不会带上仓库里的其他文件。
 
-统一入口根据意图调用同名 skill（`critique`、`reuse`，而不是 `judicious:critique`）。斜杠入口是 `judicious` 这个 skill。仓库不提供 `commands/` 目录。
+统一入口根据意图加载并执行同名 skill（`critique`、`reuse`，而不是 `judicious:critique`）。统一入口是 `judicious` 这个 skill；示例中的斜杠语法按宿主支持情况使用。仓库不提供 `commands/` 目录。
+
+技能组合通过加载并遵循所需技能的当前说明完成。环境提供技能加载机制时可直接使用，否则通过文件或资源读取对应的 `SKILL.md`。在源码仓库中使用 `skills/<name>/SKILL.md`；安装后按当前环境提供的位置查找，并确认属于 Judicious 包。保留原始目标和参数，不凭记忆重建流程。只有无法访问所需技能说明时，才报告缺失技能并停止依赖它的步骤；不能因缺少名为 `Skill` 的工具而停止。
 
 `AGENTS.md` 收录与 Claude SessionStart 钩子相同的复用卡片。Grok 的 SessionStart 不能把说明注入会话，所以 Grok 安装靠这份文件。根目录 `plugin.json` 只写插件名，并把 `hooks` 置空，避免 Grok 加载仓库根的 Claude 钩子。`.grok-plugin/marketplace.json` 与 `.claude-plugin/marketplace.json` 的 `source` 都是 `./`，插件目录因此包含 `skills/`。
 
@@ -540,7 +542,7 @@ Judicious 不开发自己的：
 
 需要规划时，使用宿主的原生规划能力。
 
-需要隔离审查时，使用原生 Subagent。
+可用且适合时，使用环境支持的独立审查能力；否则在当前上下文完成相同审查，并说明实际覆盖限制。
 
 需要文件修改时，使用原生编辑工具。
 
@@ -625,7 +627,7 @@ Judicious 应维护统一的反模式知识库，重点描述 AI Coding Agent �
 
 ## 7.1 自动发现
 
-原子 Skill 应有精确的 `description`，帮助 Claude 在相关任务中自动选择。
+原子 Skill 应有精确的 `description`，帮助执行任务的 Agent 在相关任务中自动选择。
 
 例如：
 
@@ -637,7 +639,7 @@ Judicious 应维护统一的反模式知识库，重点描述 AI Coding Agent �
 
 自动调用是期望行为，不视为可靠性保证。
 
-必须单独测试显式调用、自然语言自动触发和外部 Subagent 预加载。
+必须单独测试显式调用和自然语言自动触发；环境支持独立审查时，还应测试技能说明能否正确传入审查上下文。
 
 ## 7.2 权限边界
 
@@ -677,7 +679,7 @@ V0.1 只需要：
 
 - Markdown Skills。
 - 共享 Reference 文件。
-- Claude Code 原生工具。
+- 当前环境提供的代码搜索、编辑和测试工具。
 - 小型评测集。
 
 不引入 Rust、AST、数据库、MCP Server 或常驻服务。
@@ -800,7 +802,7 @@ Judicious 不要求外部消费者采用其目录结构、任务格式或执行�
 
 - 统一入口与原子入口语义一致。
 - 外部 Skill 能组合 Reuse 和 Placement。
-- Subagent 能正确预加载 Judicious。
+- 支持独立审查的环境能正确传入 Judicious 技能说明；没有此能力时可在当前上下文完成审查。
 - 跨上下文 Evidence Hand-off。
 - 不同宿主的安装和调用行为。
 
