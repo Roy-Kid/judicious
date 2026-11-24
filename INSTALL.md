@@ -4,7 +4,7 @@ Judicious workflows use Markdown instructions and the environment's existing sea
 
 For any environment, install the needed directories from `skills/` or make their instructions readable. For reuse-first activation, merge the card in [`AGENTS.md`](AGENTS.md) into the project's recognized instruction file.
 
-The examples use `/judicious` (skill `judicious`); actual invocation syntax depends on the environment. The other commands are skills with the same names: `reuse`, `placement`, `critique`, `audit`, `init`, `distill`, `consolidate`, `harden`, `polish`.
+The examples use `/judicious` (skill `judicious`); actual invocation syntax depends on the environment. The other commands are skills with the same names: `reuse`, `placement`, `critique`, `audit`, `init`, `distill`, `consolidate`, `harden`, `perf`, `polish`.
 
 ## Claude Code
 
@@ -69,6 +69,6 @@ If a required skill definition cannot be accessed, report that missing definitio
 |---|---|
 | Claude Code | `/plugin remove judicious` |
 | Grok Build | `grok plugin uninstall judicious` |
-| Skills CLI | `npx skills remove judicious reuse placement critique audit init distill consolidate harden polish` |
+| Skills CLI | `npx skills remove judicious reuse placement critique audit init distill consolidate harden perf polish` |
 
 The skills CLI command takes the same `--agent` and `--global` flags as the install. Remove only the Judicious card from the project instruction file to disable it; preserve unrelated rules.

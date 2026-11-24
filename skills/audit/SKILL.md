@@ -1,7 +1,7 @@
 ---
 name: audit
 description: Read-only audit of a codebase's architecture and technical debt. Maps the project, reviews the highest-risk areas through critique, merges shared root causes, and classifies what remains. Use when asked to audit a repo, survey technical debt, or review architecture across modules. Read-only; reports evidence-backed findings and never edits.
-argument-hint: "[path] [--changed] [--focus <topic>]"
+argument-hint: "[path or proposal] [--proposal] [--changed] [--focus <topic>]"
 license: MIT
 ---
 
@@ -23,6 +23,12 @@ When this workflow uses another skill, load its current instructions and follow 
 
 You coordinate. The area review is `critique`. This playbook maps, merges and classifies.
 
+## Proposal mode
+- Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+- Review the supplied plan against the affected areas, or use the normal scope and draft a prioritized set of changes from confirmed debt.
+- Map proposed dependency and ownership changes alongside existing ones so cross-area consequences are covered.
+- Keep proposal risks distinct from current debt when merging findings. Preserve each proposal anchor (`path:line`, section or step) alongside evidence from the current code. Use **Direction** for the ranked correction and how to validate it. If a plan needs changes, merge the area reviews into one **Revised proposal** with replacement text for the affected steps, verified Locations, concrete checks and open questions.
+
 ## 1. Map
 - Read the project's own rules first: README, architecture or ADR docs, project instruction files, and the manifests.
 - List the units, their public surfaces and their dependency edges.
@@ -30,7 +36,7 @@ You coordinate. The area review is `critique`. This playbook maps, merges and cl
 
 ## 2. Review
 - Review at most 4 areas in this pass. Name every skipped area under Coverage, and offer to continue.
-- For each area, load and follow `critique` with that path as its target. Use the resulting report.
+- For each area, load and follow `critique` with that path as its target. If proposal mode is active, pass `--proposal` and the relevant plan sections as well. Use the resulting report.
 
 ## 3. Merge and classify
 - Merge findings that share a root cause across areas. Keep each distinct consequence as its own bullet.
@@ -42,11 +48,13 @@ You coordinate. The area review is `critique`. This playbook maps, merges and cl
   - **Placement** — code living outside the unit that owns it, including a lowering candidate.
   - **Evolution** — a dead implementation, an unfinished migration, or a compatibility shim.
   - **Contracts** — inconsistent APIs, swallowed errors, or a lossy boundary.
-- Re-read the code behind each merged finding (**Appendix: Evidence**). Keep it unless the code proves an exception in **Appendix: Anti-patterns** or **Appendix: Disqualifiers**. When an exception is plausible but unchecked, keep the finding and lower its confidence.
+- Re-read the code and any proposal passages behind each merged finding (**Appendix: Evidence**). Check for exceptions in **Appendix: Anti-patterns** and **Appendix: Disqualifiers**. When an exception is plausible but unchecked, keep the finding and lower its confidence.
 - Rank by how far a change ripples and how silently it fails.
 - A partial search says nothing about the code you did not read. Say so in Coverage.
 
 ## Output
+In proposal mode, use the finding fields below for a **Proposal findings** section. Keep **Debt** and its count for findings about current code. Put any **Revised proposal** before **Next**.
+
 ```
 Scope: …   Rules found: … | none
 
@@ -54,8 +62,9 @@ Scope: …   Rules found: … | none
 ### 1. <root cause>  [<Category>]  [high | medium | low] · confidence: high | medium | low
 - Problem:
 - Why it matters:
+- Proposal: <decision and proposal location, when applicable>
 - Evidence: path:line
-- Locations: <every path:line that must change>
+- Locations: <existing path:line references and proposed paths or owners for new code>
 - Could be justified if:
 - Direction:
 - Fix with: `consolidate` | `distill` | `harden` | `placement` | bug fix
@@ -137,10 +146,10 @@ Emit one only when the result goes to another context, for example a subagent ha
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

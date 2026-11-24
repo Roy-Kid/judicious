@@ -114,6 +114,21 @@ class SkillTests(unittest.TestCase):
             self.assertNotIn(f"`{label}`", router)
         self.assertNotIn("Appendix:", router)
 
+    def test_proposal_review_and_revision_are_available_at_both_entry_points(self):
+        for skill in self.skills():
+            with self.subTest(skill=skill.parent.name):
+                self.assertIn("[--proposal]", frontmatter(skill).get("argument-hint", ""))
+                if skill.parent.name == "judicious":
+                    router = body(skill)
+                    self.assertIn("`critique --proposal`", router)
+                    self.assertIn("**Revised proposal**", router)
+                else:
+                    proposal = body(skill).partition("\n## Proposal mode\n")[2]
+                    proposal = proposal.partition("\n## ")[0]
+                    self.assertIn("even without `--proposal`", proposal)
+                    self.assertIn("read-only", proposal)
+                    self.assertIn("**Revised proposal**", proposal)
+
     def test_modes_and_next(self):
         for skill in self.skills():
             if skill.parent.name == "judicious":

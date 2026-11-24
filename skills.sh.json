@@ -15,6 +15,7 @@
         "distill",
         "consolidate",
         "harden",
+        "perf",
         "polish"
       ]
     }

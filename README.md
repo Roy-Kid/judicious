@@ -9,22 +9,35 @@ The workflows are agent-independent Markdown skills: no runtime, no AST, no MCP 
 | Command | Mode | Question |
 |---|---|---|
 | `/judicious reuse [need]` | read-only | Does a capability that meets this need already exist? |
-| `/judicious critique [path]` | read-only | What is structurally wrong with this design? Reviews units and cross-cutting concerns. |
+| `/judicious critique [path or proposal]` | read-only | What is structurally wrong with this code or proposed design? |
 | `/judicious audit [path]` | read-only | What architecture problems and technical debt does this codebase have? |
 | `/judicious placement [path or finding]` | read-only | Where should this code live: keep, move, extract, lower (e.g. into a core library) or remove? |
 | `/judicious init [path]` | orchestrating | Discover existing conventions, audit, and remediate one approved batch. |
 | `/judicious consolidate [finding]` | edits code | Merge parallel implementations or APIs into one. |
 | `/judicious distill [finding]` | edits code | Remove code that has no reason to exist, preserving behavior. |
 | `/judicious harden [finding]` | edits code | Make silent failures loud: contracts, errors, invariants, lossy round trips. |
+| `/judicious perf [path or workload]` | read-only by default; edits on request | Find measured bottlenecks and verify performance improvements. |
 | `/judicious polish` | edits code | Is the current change ready to merge? Applies only small, local fixes. |
 
 `/judicious` with no argument lists them. Each command is also a skill whose `name` matches the command (`reuse`, `critique`, …). Slash commands are examples; use your environment's invocation syntax or ask for a skill by name.
 
 **Skill loading.** Use the environment's skill loader, or read the installed skill's `SKILL.md` through file or resource access, then follow its instructions. In this checkout, the definitions are under `skills/<name>/SKILL.md`. Skill composition requires access to the referenced definitions, not a particular tool. Review works with or without delegation.
 
-**Flow:**
+## Before implementation
+
+Judicious recognizes a proposal from the changes described in the target document or referenced conversation. The title and `--proposal` flag are optional. A proposal submitted without a command gets a `critique` review. Pass a code target with `--proposal` to diagnose it and draft a fix. The same mode is available through `/judicious` and every standalone skill.
+
+```text
+/judicious critique docs/api-notes.md
+/judicious harden src/api --proposal
+```
+
+When a proposal omits files or has stale citations, Judicious follows symbols and callers in the current code to find the right `path:line`. For a new file, it names the intended path or owner. If any step needs changes, the report includes a **Revised proposal** with replacement text, concrete verification checks and any unresolved references or decisions. It preserves the plan's intent and structure and ends without editing files. A later implementation request starts by re-reading those Locations and checking the assumptions against the current code.
+
+## Workflow
+
 1. `critique` or `audit` locates every problem at `path:line` and tags it with `Fix with: consolidate | distill | harden | placement | bug fix`.
-2. The fix command starts from those Locations instead of searching again.
+2. The fix command starts from those Locations and resolves any references that are missing or stale.
 3. `init` runs `audit`, then that same loop on one approved batch.
 4. `polish` checks the current diff before a merge.
 5. Every command ends with a **Next** recommendation, usually `critique --changed` to re-check.

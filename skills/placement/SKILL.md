@@ -1,7 +1,7 @@
 ---
 name: placement
 description: Decides where code should live — keep, move, extract into a shared unit, lower into a core layer or dependency (including across Python/Rust/WASM boundaries), or remove. Use when code may sit in the wrong module or package, when an upper package re-implements what its core library should own, or when a critique finding says to move or lower code. Read-only; returns a located migration plan.
-argument-hint: "[path, symbol or critique finding]"
+argument-hint: "[path, symbol, finding or proposal] [--proposal]"
 license: MIT
 ---
 
@@ -15,6 +15,11 @@ license: MIT
 ## Input
 - **Target:** a path, a symbol, or a finding from an earlier report. When the target is a finding, start from its Locations (see **Appendix: Report**).
 - Read both sides: the code where it lives now, and the candidate destination. For lowering, that means the core library's source and its bindings.
+
+## Proposal mode
+Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+
+Check the ownership and migration assumptions in the supplied plan, or develop a plan for the target. Cite proposal lines, sections or steps alongside owner, dependency and consumer Locations. If a supplied plan needs changes, use the normal Plan as a **Revised proposal** with replacement steps, verified Locations, one check per step and unresolved ownership or migration assumptions. For `KEEP`, explain which code evidence supports the current owner.
 
 ## Procedure
 1. **State the responsibility** in one line. Name the unit that owns that domain according to the project docs and manifests.
@@ -115,10 +120,10 @@ Emit one only when the result goes to another context, for example a subagent ha
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

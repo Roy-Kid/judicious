@@ -13,7 +13,7 @@
     {
       "name": "judicious",
       "source": "./",
-      "description": "Engineering judgment for AI coding agents: reuse before creating, place code correctly, critique and audit structure, and distill, consolidate, harden or polish with the project's own tests.",
+      "description": "Engineering judgment for AI coding agents: reuse before creating, place code correctly, critique and audit structure, and distill, consolidate, harden, review performance or polish with the project's own tests.",
       "category": "development"
     }
   ]

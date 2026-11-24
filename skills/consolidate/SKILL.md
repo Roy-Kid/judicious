@@ -1,7 +1,7 @@
 ---
 name: consolidate
 description: Merges parallel implementations, duplicated pipelines or overlapping APIs into one canonical implementation, migrates callers and deletes the rest. Use when a critique finding or the user identifies two or more units doing the same job, or entry points whose behavior has drifted apart. Edits code; verifies with the project's tests.
-argument-hint: "[paths, symbols or critique finding]"
+argument-hint: "[paths, symbols, finding or proposal] [--proposal]"
 license: MIT
 ---
 
@@ -15,6 +15,11 @@ license: MIT
 ## Input
 - **Target:** two or more paths or symbols, or a finding from an earlier report. When the target is a finding, start from its Locations (see **Appendix: Report**).
 
+## Proposal mode
+Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+
+Review any supplied merge plan against the implementations and their consumers, citing its lines, sections or steps. Use steps 1–5 and end with the proposal report before any migration or edits. When a supplied plan needs changes, return a **Revised proposal** with replacement migration steps, verified Locations, checks for behavior differences, and open decisions.
+
 ## Procedure
 1. **Inventory:** list every implementation and every consumer, with `path:line`.
 2. **Compare the real behavior** of each: inputs, outputs, defaults, errors, side effects, caching. Write the differences as a table.
@@ -24,15 +29,18 @@ license: MIT
    - the most consumers;
    - the right owner.
    For every difference, decide which behavior wins. A difference that is a bug in one copy is fixed, not preserved.
-5. **Check the approval gate** in **Appendix: Verification**. Cross-module merges usually require approval: present steps 1–4 and the migration plan.
-6. **Migrate the callers** in small batches. Then delete the old implementations and any compatibility leftovers.
-7. **Verify** with the project's checks, and add a regression test for each behavior difference you resolved.
+5. **Plan the migration** before editing. List the Locations of the callers to switch, the definitions to delete, and tests for each behavior difference. Name prospective test locations by path or owner.
+6. **Check the approval gate** in **Appendix: Verification**. Present steps 1–5 when the gate applies.
+7. **Migrate the callers** in small batches. Then delete the old implementations and any compatibility leftovers.
+8. **Verify** with the project's checks, and add a regression test for each behavior difference you resolved.
 
 ## Never
 - Create a new shared abstraction just to hide surface duplication.
 - Keep both implementations "for compatibility" without a named consumer and a removal date.
 
 ## Output
+In proposal mode, report the comparison, recommended owner, migration Locations and planned checks, then end with **Next**. The report below describes a completed implementation.
+
 ```
 Canonical: path:line   Removed: path:line, …
 Behavior decisions: <difference> → <chosen behavior> (why)
@@ -41,7 +49,7 @@ Verification: `<cmd>` → result (baseline → after); not verified: …
 Left over: path:line — why
 Next: …
 ```
-- Next is usually `/judicious critique --changed`. If the merge exposed a missing contract, recommend `/judicious harden <path>`.
+- After implementation, Next is usually `/judicious critique --changed`. If the merge exposed a missing contract, recommend `/judicious harden <path>`.
 
 ## Appendix: Disqualifiers
 
@@ -87,10 +95,10 @@ These rules apply to every command that edits code.
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

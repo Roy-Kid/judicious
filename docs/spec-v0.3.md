@@ -143,6 +143,7 @@ Judicious 同时提供统一入口和原子入口。
 | `distill` | 精简冗余实现和复杂性 | 修改代码 |
 | `consolidate` | 收敛重复职责和平行 API | 修改代码 |
 | `harden` | 加固契约、架构边界和异常处理 | 修改代码 |
+| `perf` | 基于测量的性能审查与优化 | 默认只读；明确请求优化时修改代码 |
 | `polish` | 提交前的综合检查与小范围清理 | 检查及有限修改 |
 
 `init` 和 `audit` 必须能够独立调用。
@@ -161,6 +162,8 @@ Judicious 同时提供统一入口和原子入口。
 /judicious audit --changed
 /judicious audit --focus duplication
 /judicious critique src/core
+/judicious critique docs/api-notes.md
+/judicious harden src/api --proposal
 /judicious reuse "parse configuration"
 /judicious placement src/utils/parser.py
 ```
@@ -170,8 +173,11 @@ Judicious 同时提供统一入口和原子入口。
 - 不提供 Target 时，以当前项目或当前变更为默认范围，具体由命令决定。
 - 路径可以是文件、目录或 Workspace 内的 Package。
 - 自然语言可以描述领域能力或架构问题。
+- `--proposal` 适用于统一入口和每个原子命令。根据目标文档或所引用对话里的拟议行为、设计决策和实施步骤识别提案，标题和参数均可省略。未指定命令时，由 `critique` 做通用提案审查。明确请求实施时走原有流程，显式 `--proposal` 优先进入只读模式。
 - `--changed` 表示审查 Git 变更。
 - `--focus` 表示优先审查某类问题，不代表忽略必要的相关证据。
+
+提案模式全程只读。报告定位提案里的具体决策（行号、章节或步骤），并用实际查阅过的 `path:line` 引用现有实现、调用方或约束。引用缺失或过时时，沿符号和调用关系补定位。新增文件用拟定路径或归属模块定位。需要修改的提案应附补全后的段落或步骤，沿用原提案的目标和结构，写明具体改动、验证办法和仍待确认的事项。收到实施请求后，从报告中的 Locations 开始重新核对现有代码和提案假设。
 
 这些是 Skill 的交互约定，不是独立 CLI 的参数协议。
 
@@ -273,7 +279,7 @@ Judicious 同时提供统一入口和原子入口。
 
 ## 3.3 Critique
 
-**问题：现有代码的工程设计哪里不合理？**
+**问题：现有代码或拟议方案的工程设计哪里不合理？**
 
 审查内容：
 
@@ -514,6 +520,7 @@ judicious/
     ├── distill/SKILL.md
     ├── consolidate/SKILL.md
     ├── harden/SKILL.md
+    ├── perf/SKILL.md
     └── polish/SKILL.md
 ```
 
@@ -900,7 +907,7 @@ Judicious 不计划成为：
 
 必须完成：
 
-1. 统一入口 `/judicious`，以及九个原子命令：`init`、`audit`、`reuse`、`placement`、`critique`、`distill`、`consolidate`、`harden`、`polish`。
+1. 统一入口 `/judicious`，以及十个原子命令：`init`、`audit`、`reuse`、`placement`、`critique`、`distill`、`consolidate`、`harden`、`perf`、`polish`。
 2. 单一权威命令定义和共享工程原则。统一入口委托原子 skill，不维护第二份判断逻辑。
 3. 无 Runtime、无 AST、无 MCP、无 CI 检测器。Stage 7 的工具只有在测到明确瓶颈后才单独评估，不进入 0.1。
 

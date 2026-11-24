@@ -1,7 +1,7 @@
 ---
 name: distill
 description: Removes code that has no reason to exist while preserving behavior — pass-through wrappers, copy-pasted helpers, speculative extension points, unused options or parameters, unreachable branches, dead implementations and expired compatibility shims. Use when a critique finding or the user points at unnecessary complexity. Edits code; verifies with the project's tests.
-argument-hint: "[path, symbol or critique finding]"
+argument-hint: "[path, symbol, finding or proposal] [--proposal]"
 license: MIT
 ---
 
@@ -15,24 +15,32 @@ license: MIT
 ## Input
 - **Target:** a path, a symbol, or a finding from an earlier report. When the target is a finding, start from its Locations (see **Appendix: Report**).
 
+## Proposal mode
+Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+
+Check any proposed removals or simplifications against their references, citing the plan's lines, sections or steps. Use steps 1–3 and end with the proposal report before any edits. When a supplied plan needs changes, return a **Revised proposal** with replacement steps, verified Locations, behavior checks and unresolved references.
+
 ## Procedure
 1. **List the candidates**, with `path:line`, and name the anti-pattern behind each one (**Appendix: Anti-patterns**).
 2. **Prove each candidate is removable:**
    - Find every reference, including dynamic ones: string lookups, entry points, config, re-exports, docs and tests.
-   - Check whether it is public API. If it is exported or documented, apply the approval gate.
+   - Record whether it is exported or documented so the approval gate can account for public API changes.
    - Check the pattern's "legitimate when" column. If an exception holds, keep the code and say why.
-3. **Simplify:**
+3. **Plan the simplification** with the exact Locations of definitions and callers, the behaviors and contracts to keep, and the checks that cover them.
+4. **Simplify** after following **Appendix: Verification**:
    - Inline forwarding layers.
    - Delete dead code, unreachable branches and unused parameters.
    - Collapse copies into the one that already exists.
    - Never add a new abstraction to do this.
-4. **Keep:**
+5. **Keep:**
    - correctness and necessary error handling;
    - observable behavior and public contracts;
    - compatibility that a named consumer needs.
-5. **Verify** with the project's checks.
+6. **Verify** with the project's checks.
 
 ## Output
+In proposal mode, report the proposed simplifications and their Locations, what needs to stay, and checks for behavior preservation. End with **Next**. The report below describes a completed implementation.
+
 ```
 Removed/simplified: path:line — what, and why it was safe (references checked)
 Kept: path:line — exception that justified it
@@ -40,7 +48,7 @@ Verification: `<cmd>` → result (baseline → after); not verified: …
 Net lines: −N
 Next: …
 ```
-- Next is usually `/judicious critique --changed`. If removing something exposed duplication, recommend `/judicious consolidate`.
+- After implementation, Next is usually `/judicious critique --changed`. If removing something exposed duplication, recommend `/judicious consolidate`.
 
 ## Appendix: Anti-patterns
 
@@ -89,10 +97,10 @@ These rules apply to every command that edits code.
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

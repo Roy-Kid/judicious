@@ -1,14 +1,14 @@
 ---
 name: critique
-description: Structural engineering review of existing code. Finds duplicated responsibilities and parallel APIs, layer bypasses and wrong dependency direction, pass-through wrappers and speculative abstractions, shadow state, lossy boundaries, swallowed errors, and docs that promise checks which don't exist. Use when asked to review, critique or assess the design or architecture of code. Read-only; reports evidence-backed findings and never edits.
-argument-hint: "[path or area] [--changed] [--focus <topic>]"
+description: Structural engineering review of existing code or a proposed design before implementation. Finds duplicated responsibilities and parallel APIs, layer bypasses and wrong dependency direction, pass-through wrappers and speculative abstractions, shadow state, lossy boundaries, swallowed errors, and docs that promise checks which don't exist. Use when asked to review, critique or assess the design or architecture of code. Read-only; reports evidence-backed findings and never edits.
+argument-hint: "[path, area or proposal] [--proposal] [--changed] [--focus <topic>]"
 license: MIT
 ---
 
 
 # critique
 
-**Question:** What is structurally wrong with the engineering design of this code, and why?
+**Question:** What is structurally wrong with this code or proposed design, and why?
 
 **Mode:** read-only. Never edit, create or delete files.
 
@@ -20,6 +20,14 @@ license: MIT
 
 Map, review and verify the scope using the available capabilities. Independent reviewers can help with broad scopes, but delegation is optional.
 
+## Proposal mode
+- Use this read-only mode with `--proposal`, a request to review or draft a plan, or a target document or referenced conversation that sets out proposed changes. Identify plans from the intended behavior, design decisions or implementation steps in the targeted text, even without `--proposal` or a proposal label. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+- Use the supplied plan, or use the target code to draft corrections for confirmed findings. A document that only describes current behavior does not trigger proposal mode on its own. If the user asks to review a plan and it is missing, ask for it.
+- Trace the proposed ownership, API and dependency changes against the affected code and project rules. Anchor each finding in the proposal at `path:line`, or use the section, step or quoted phrase for inline text. Cite existing definitions, callers and rules as separate code evidence.
+- Apply the same lenses and disqualifiers. Confirm a design defect against the plan and any relevant existing contracts. Label predicted consequences and unverified assumptions, and distinguish them from defects already present in code.
+- Use **Locations** for the affected code or proposed insertion points and **Direction** for the specific revision and how to validate it. Fill in missing or stale references by reading the named symbols, surrounding code, callers and relevant tests or project rules. Cite verified `path:line` references, with the symbol where helpful. Give new files a proposed path or owning module. Mark unresolved locations or assumptions and say what would confirm them.
+- When a plan needs changes, return a **Revised proposal** with ready-to-use text for the affected steps, preserving the plan's intent and structure. Each changed step names the proposed action, its Locations and a concrete verification check. A location or design choice still in doubt belongs with the open questions, with the check or decision that would resolve it. A plan that already meets the requirements needs no rewrite.
+
 ## 1. Map (you)
 - Read the project's own rules first: README, architecture or ADR docs, project instruction files, and the manifests (they define dependency edges).
 - List the units, their public surfaces and their dependencies.
@@ -30,6 +38,7 @@ Map, review and verify the scope using the available capabilities. Independent r
 - Review each unit and check duplication across units and against dependencies, including missed lowering. When delegation is available and appropriate, assign independent reviewers to units and a cross-cutting review. Respect the environment's concurrency limits.
 - Each delegated review includes:
   - its paths, plus the paths of the dependency sources it may need;
+  - in proposal mode, the relevant plan sections and the distinction between proposed behavior and existing code;
   - the project rules you found;
   - the lens table and the rules from step 4;
   - the finding fields from Output, with exact `path:line` Locations;
@@ -53,7 +62,7 @@ Map, review and verify the scope using the available capabilities. Independent r
 
 ## 4. Verify (you)
 - Re-check each returned finding in the code yourself. Drop any you cannot confirm.
-- Confirm each candidate in the code (bodies and callers), to the standard in **Appendix: Evidence**.
+- Confirm current-code findings in the bodies and callers, to the standard in **Appendix: Evidence**. For proposed behavior, verify the claim against the plan and the affected code you can inspect.
 - Check its exceptions and **Appendix: Disqualifiers**. Use them only to remove false positives:
   - If the code proves an exception holds, drop the candidate and list it under "Not problems".
   - If an exception is plausible but unverified, keep the finding, lower its confidence, and name the exception.
@@ -79,8 +88,9 @@ Scope: …   Rules found: … | none
 ### 1. <root cause>  [high | medium | low] · confidence: high | medium | low
 - Problem:
 - Why it matters: <concrete failure scenario>
+- Proposal: <decision and proposal location, when applicable>
 - Evidence: <path:line, call sites, manifest edges>
-- Locations: <every path:line that must change; this is the fix command's to-do list>
+- Locations: <existing path:line references and proposed paths or owners for new code>
 - Could be justified if: <exception, and whether you checked it>
 - Direction:
 - Fix with: `consolidate` | `distill` | `harden` | `placement` | bug fix
@@ -90,6 +100,9 @@ Scope: …   Rules found: … | none
 ## Not problems
 ## Coverage
 <read / skipped / not visible>
+
+## Revised proposal
+<replacement text for affected steps, if the supplied plan needs changes>
 
 ## Next
 <1–3 commands, highest impact first, each with its exact target>
@@ -171,10 +184,10 @@ Emit one only when the result goes to another context, for example a subagent ha
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

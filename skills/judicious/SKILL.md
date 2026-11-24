@@ -1,7 +1,7 @@
 ---
 name: judicious
-description: Engineering judgment for long-lived code. Entry point for `/judicious <command> [target]`, which routes to reuse, placement, critique, audit, init, distill, consolidate, harden or polish. Use when the user invokes /judicious or asks which engineering-judgment command fits.
-argument-hint: "[command] [target or instruction] [--changed] [--focus <topic>]"
+description: Engineering judgment for long-lived code. Entry point for `/judicious <command> [target]`, which routes to reuse, placement, critique, audit, init, distill, consolidate, harden, perf or polish. Use when the user invokes /judicious or asks which engineering-judgment command fits.
+argument-hint: "[command] [target or instruction] [--proposal] [--changed] [--focus <topic>]"
 license: MIT
 ---
 
@@ -28,19 +28,21 @@ When this workflow uses another skill, load its current instructions and follow 
 |---|---|---|---|
 | `audit` | `audit` | read-only | What architecture problems and technical debt does this codebase have? |
 | `consolidate` | `consolidate` | modifying | Should these implementations become one, and if so, which one stays? |
-| `critique` | `critique` | read-only | What is structurally wrong with the engineering design of this code, and why? |
+| `critique` | `critique` | read-only | What is structurally wrong with this code or proposed design, and why? |
 | `distill` | `distill` | modifying | What here can be deleted or simplified without changing behavior? |
 | `harden` | `harden` | modifying | Where can this code go silently wrong, and how do we make that impossible or loud? |
 | `init` | `init` | orchestrating | How do we give this project a starting point for engineering governance? |
 | `placement` | `placement` | read-only | Where should this code live? |
+| `perf` | `perf` | read-only by default; modifying on request | Which bottleneck is measured, and what improves it? |
 | `polish` | `polish` | modifying | Is this change ready to merge? |
 | `reuse` | `reuse` | read-only | Does a capability that meets this need already exist, and should it be used? |
 
 ## Routing
 - **No argument:** show the table with one example each, such as `/judicious reuse "parse configuration"`, `/judicious audit` or `/judicious polish`. Run nothing.
-- **Typical flow:** `critique` or `audit` finds and locates problems, then each finding's `Fix with` command fixes them, then `critique --changed` re-checks. `init` runs `audit` and then that loop on one approved batch. `polish` checks the current diff before a merge. Every command ends with a Next recommendation.
-- **Explicit command:** load that command's skill as described above, preserving the remaining arguments unchanged, then follow its instructions.
+- **Typical flow:** `critique` or `audit` finds and locates problems. Use a finding's `Fix with` command with `--proposal` to review the design or prepare a fix before implementation. When implementation is requested, the fix command re-checks those Locations and verifies the change. `init` runs `audit` and then that loop on one approved batch. `polish` checks the current diff before a merge. Every command ends with a Next recommendation.
+- **Explicit command:** load that command's skill as described above, preserving the target and arguments. Pass along any referenced proposal in the conversation. The skill checks the target's content before selecting its mode.
 - **Natural-language request:** pick the command whose question matches, say which one in one line, then call its skill the same way.
+  - An unimplemented design or plan supplied without a command → `critique --proposal` for general review. Identify it from its intended changes, even if its title or message has no proposal label. For a specialized review, use the matching command in proposal mode. An explicit request to implement follows the selected command's normal workflow unless `--proposal` is set.
   - Code about to be added → `reuse`.
   - Existing code being judged → `critique`.
   - The whole codebase, or its technical debt → `audit`.
@@ -49,13 +51,15 @@ When this workflow uses another skill, load its current instructions and follow 
   - Merging duplicates → `consolidate`.
   - Removing needless code → `distill`.
   - Fixing silent failures and contracts → `harden`.
+  - Performance review or optimization → `perf`.
   - Whether the current change is ready to merge → `polish`.
   - If several fit, ask once.
 - **Unknown command:** say it is not available and suggest the closest available command.
 - **Skill instructions inaccessible:** name the skill that could not be loaded and the access limitation. Do not substitute a generic answer.
 
 ## Arguments (shared by every command)
-- **Target:** a file, directory, package or crate, or a description in words.
-- **`--changed`:** limits the scope to the git diff.
+- **Target:** a file, directory, package or crate, or a description in words. In proposal mode it can also be a plan document or a proposal in the conversation.
+- **`--proposal`:** explicitly select read-only proposal mode on either entry point. A request to review or draft a proposal or a target recognized as a plan for review also selects it. Diagnose first. If the supplied plan has gaps, return a **Revised proposal** with verified Locations and concrete checks, plus anything still unresolved. End with the report, without editing files.
+- **`--changed`:** limits the code scope to the git diff. If a proposal is supplied, still read it to understand the design under review.
 - **`--focus <topic>`:** sets a priority. It is not a filter.
 - **No target:** each command defines its own default.

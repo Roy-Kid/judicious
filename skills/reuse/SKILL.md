@@ -1,7 +1,7 @@
 ---
 name: reuse
 description: Use before writing new code — adding a function, helper, class, module, CLI option, config loading, parsing, retry/backoff, validation, checksum or other utility logic, or a new dependency. Checks whether the codebase, its workspace packages, declared dependencies or the standard library already provide it, then decides reuse, extend or create. Read-only; the caller implements the decision.
-argument-hint: "[need, symbol or path] [--changed]"
+argument-hint: "[need, symbol, path or proposal] [--proposal] [--changed]"
 license: MIT
 ---
 
@@ -17,6 +17,11 @@ license: MIT
 - **No target:** the pending change.
 - **`--changed`:** every new unit in the git diff.
 - First restate the need in one line: inputs, outputs, edge cases, call site. Judge candidates against that line, not against names.
+
+## Proposal mode
+Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
+
+Take the requirements and intended call sites from the supplied plan, or prepare a recommendation for the supplied need. For each recommendation, cite the proposal line, section or step when available and the existing candidate and callers at `path:line`. When a supplied plan needs changes, include a **Revised proposal** with replacement text that names the reuse decision, verified Locations, a check for the required semantics or contract, and unresolved candidates. Return the decision without implementing it, including when another skill calls `reuse`.
 
 ## Search (nearest first; widen only when a lead points further)
 1. The current file and its neighbours.
@@ -66,9 +71,9 @@ Unverified: …
 Next: <e.g. implement at path:line, then /judicious critique --changed>
 Decision: <LABEL>
 ```
-- Every candidate and the recommended location get a `path:line` (see **Appendix: Report**).
+- Cite every existing candidate and recommended insertion point at `path:line` (see **Appendix: Report**). For a proposed new file, give its intended path or owner.
 
-**Inside an implementation task:**
+**Inside an implementation task outside proposal mode:**
 - Don't stop to write a report. Act on the decision:
   - `REUSE` or `COMPOSE`: call the existing code directly. If the caller now uses a dependency it only had transitively, declare it.
   - `EXTEND`: make the minimal addition in place.
@@ -125,10 +130,10 @@ Emit one only when the result goes to another context, for example a subagent ha
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

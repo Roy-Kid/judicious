@@ -1,7 +1,7 @@
 ---
 name: polish
 description: Pre-merge check of the current change. Looks for missed reuse, new duplication, wrong placement, new public APIs, leftover dead code and skipped tests, and applies small safe fixes. Use when asked whether a diff is ready to merge, or to polish the current change. Edits code; verifies with the project's tests.
-argument-hint: "[path] [--focus <topic>]"
+argument-hint: "[path or proposal] [--proposal] [--focus <topic>]"
 license: MIT
 ---
 
@@ -20,10 +20,15 @@ When this workflow uses another skill, load its current instructions and follow 
 - **A path:** limit the check to the diff inside that path.
 - **`--focus <topic>`:** look at that topic first. It sets priority; it does not filter.
 
-## Check the diff
-For each new or changed unit, answer these. Cite `path:line` (see **Appendix: Report**).
+## Proposal mode
+Use this read-only mode with `--proposal`, a request to review or draft a plan, or when the target document or referenced conversation sets out proposed changes, even without `--proposal`. An explicit implementation request uses the normal workflow unless `--proposal` is set.
 
-1. **Reuse.** Does an existing capability already do this? When a new helper resembles one, load and follow `reuse` with the need, then apply its decision.
+Use the supplied plan or the scoped diff and apply the checks below. Cite plan lines, sections or steps alongside existing Locations. When a supplied plan needs changes, return a **Revised proposal** with replacement steps, verified Locations, planned checks and open blockers. End with the proposal report before making even local fixes.
+
+## Check the change
+For each proposed, new or changed unit, answer these. Cite `path:line` for existing evidence (see **Appendix: Report**).
+
+1. **Reuse.** Does an existing capability already do this? When a new helper resembles one, load and follow `reuse` with `--proposal` and the need, then use its decision to identify a correction.
 2. **Duplication.** Did this change add a parallel implementation or API?
 3. **Placement.** Does the new code sit in the unit that owns that responsibility?
 4. **Public API.** Did this change add or change an exported symbol?
@@ -33,11 +38,15 @@ For each new or changed unit, answer these. Cite `path:line` (see **Appendix: Re
 Judge reuse, merging and extraction against **Appendix: Disqualifiers**.
 
 ## What you may change
+Before editing, locate the issue and the change in the diff and identify how to verify the correction. Follow **Appendix: Verification**.
+
 Change it here when the edit stays local: it keeps the public API, it stays inside one package, and it touches about 5 files or fewer. A local fix deletes unused local code, calls an existing function instead of a new copy, or inlines a forwarding-only wrapper.
 
 A cross-package move, a public-API migration or a lowering stays a recommendation, with Locations, for `consolidate`, `distill`, `harden` or `placement`.
 
 ## Output
+In proposal mode, report readiness to implement, blockers, proposed corrections and planned checks, then end with **Next**. Use the report below for a diff being prepared for merge.
+
 ```
 Scope: <diff, revision>
 Ready: yes | no
@@ -99,10 +108,10 @@ These rules apply to every command that edits code.
 Every Judicious report follows these rules.
 
 ### Locate everything
-- Each issue, candidate or change cites the exact `path:line` (or a line range) of every place involved. That covers the definition, the call sites to change, and the manifest or doc line.
+- Cite existing locations at `path:line` (or a line range). Include the definition, the call sites to change and relevant manifests or docs. Give new files a proposed path or owner.
 - **Locations** is the to-do list for whoever acts on the finding. List every place that must change, not just one example.
 - Never report an issue without a location. If you cannot locate it, say so and lower the confidence.
-- When acting on an earlier report, start from its Locations. Re-read them to verify, but do not search for them again.
+- Start from the Locations in an earlier report or proposal. Re-read the source and resolve missing or stale references by following symbols and callers. State what remains unverified.
 
 ### End with the next step
 - The last section is **Next**: one to three recommended commands, in order, each with its exact target and a one-line reason.

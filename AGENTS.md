@@ -13,7 +13,7 @@ Before writing a new function, class, module, helper, CLI option, parser, retry 
 
 ## Skills
 
-The commands are skills under `skills/<name>/SKILL.md`. The unified entry is the `judicious` skill (shown as `/judicious` in command examples; invocation syntax depends on the environment). It routes to `reuse`, `placement`, `critique`, `audit`, `init`, `distill`, `consolidate`, `harden`, and `polish`.
+The commands are skills under `skills/<name>/SKILL.md`. The unified entry is the `judicious` skill (shown as `/judicious` in command examples; invocation syntax depends on the environment). It routes to `reuse`, `placement`, `critique`, `audit`, `init`, `distill`, `consolidate`, `harden`, `perf`, and `polish`.
 
 Load skills through the environment's supported mechanism or read their current `SKILL.md` files and follow them. No specific skill tool is required.
 
